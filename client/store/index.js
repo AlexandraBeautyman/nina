@@ -3,8 +3,9 @@ import createLogger from 'redux-logger'
 import thunkMiddleware from 'redux-thunk'
 import {composeWithDevTools} from 'redux-devtools-extension'
 import user from './user'
+import carpool from './carpool'
 
-const reducer = combineReducers({user})
+const reducer = combineReducers({user, carpool})
 const middleware = composeWithDevTools(
   applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))
 )

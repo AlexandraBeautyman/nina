@@ -1,7 +1,8 @@
 'use strict'
 
 const db = require('../server/db')
-const {User} = require('../server/db/models')
+const {User, Address} = require('../server/db/models')
+const addressArray = require('./updated_addresses_seed')
 
 async function seed() {
   await db.sync({force: true})
@@ -12,7 +13,9 @@ async function seed() {
     User.create({email: 'murphy@email.com', password: '123'})
   ])
 
-  console.log(`seeded ${users.length} users`)
+  const addresses = await Address.bulkCreate(addressArray)
+
+  console.log(`seeded ${users.length} users and ${addresses.length} addresses`)
   console.log(`seeded successfully`)
 }
 
