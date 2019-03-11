@@ -23,7 +23,6 @@ router.get('/event', async (req, res, next) => {
       name
     }
   })
-  console.log(eventDeets)
   res.send(eventDeets)
 })
 
