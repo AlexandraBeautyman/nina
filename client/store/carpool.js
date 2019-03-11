@@ -15,6 +15,7 @@ function compareByDistance(a, b) {
 const GOT_ORIGIN = 'GOT_ORIGIN'
 const GOT_BUDDIES = 'GOT_BUDDIES'
 const GOT_FILTERED_BUDDIES = 'GOT_FILTERED_BUDDIES'
+const GOT_ERROR = 'GOT_ERROR'
 
 // ACTION CREATORS
 const gotOrigin = origin => ({
@@ -30,6 +31,11 @@ const gotBuddies = buddies => ({
 const gotFilteredBuddies = filteredBuddies => ({
   type: GOT_FILTERED_BUDDIES,
   filteredBuddies
+})
+
+const gotError = error => ({
+  type: GOT_ERROR,
+  error
 })
 
 // THUNK CREATORS
@@ -85,6 +91,7 @@ export const filterBuddies = (potentials, origin) => async dispatch => {
     }
     dispatch(gotFilteredBuddies(keepers))
   } catch (error) {
+    dispatch(gotError(error))
     console.error(error)
   }
 }
@@ -93,18 +100,21 @@ export const filterBuddies = (potentials, origin) => async dispatch => {
 const initialState = {
   buddies: [],
   filteredBuddies: [],
-  origin: {}
+  origin: {},
+  error: false
 }
 
 // REDUCER
 export default function(state = initialState, action) {
   switch (action.type) {
     case GOT_BUDDIES:
-      return {...state, buddies: action.buddies}
+      return {...state, buddies: action.buddies, error: false}
     case GOT_FILTERED_BUDDIES:
-      return {...state, filteredBuddies: action.filteredBuddies}
+      return {...state, filteredBuddies: action.filteredBuddies, error: false}
     case GOT_ORIGIN:
-      return {...state, origin: action.origin}
+      return {...state, origin: action.origin, error: false}
+    case GOT_ERROR:
+      return {...state, error: action.error}
     default:
       return state
   }

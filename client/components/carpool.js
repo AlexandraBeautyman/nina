@@ -7,10 +7,17 @@ class Carpool extends React.Component {
   constructor() {
     super()
     this.state = {
-      email: ''
+      email: '',
+      definites: false
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  componentDidMount() {
+    this.setState({
+      definites: false
+    })
   }
 
   async componentDidUpdate(prevProps) {
@@ -33,6 +40,26 @@ class Carpool extends React.Component {
       const addressInfo = makeCoordinateBox(origin, event)
       await this.props.submitAddressInfo(addressInfo, origin)
     }
+    if (this.props.definites && this.props.definites !== prevProps.definites) {
+      this.setState({
+        definites: true,
+        email: ''
+      })
+    }
+    if (this.props.error && this.props.error !== prevProps.error) {
+      this.setState({
+        definites: true
+      })
+      toastr.options = {
+        closeButton: true,
+        showMethod: 'slideDown',
+        timeOut: 3500,
+        positionClass: 'toast-bottom-right'
+      }
+      toastr.error(
+        'Sorry, we were unable to find anyone who would make you a good carpool buddy. :('
+      )
+    }
   }
 
   handleChange(event) {
@@ -51,9 +78,6 @@ class Carpool extends React.Component {
       positionClass: 'toast-bottom-right'
     }
     toastr.success(`Give us a moment to find you some options!`)
-    this.setState({
-      email: ''
-    })
   }
 
   render() {
@@ -73,7 +97,7 @@ class Carpool extends React.Component {
           />
           <button type="submit">Submit</button>
         </form>
-        {this.props.definites && this.props.definites.length ? (
+        {this.state.definites && this.props.definites.length ? (
           <div className="buddies">
             {this.props.definites.map(definite => {
               return (
@@ -102,7 +126,8 @@ class Carpool extends React.Component {
 const mapStateToProps = state => ({
   potentials: state.carpool.buddies,
   definites: state.carpool.filteredBuddies,
-  origin: state.carpool.origin
+  origin: state.carpool.origin,
+  error: state.carpool.error
 })
 
 const mapDispatchToProps = dispatch => ({

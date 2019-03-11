@@ -16,6 +16,28 @@ class Input extends React.Component {
     this.handleChange = this.handleChange.bind(this)
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.error && this.props.error !== prevProps.error) {
+      toastr.options = {
+        closeButton: true,
+        showMethod: 'slideDown',
+        timeOut: 2500,
+        positionClass: 'toast-bottom-right'
+      }
+      toastr.warning(
+        'Your email is already in the database. If you need to change your info, contact Lex!'
+      )
+    } else if (this.props.guest !== prevProps.guest) {
+      toastr.success(`You have submitted your address!`)
+      this.setState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        address: ''
+      })
+    }
+  }
+
   handleChange(event) {
     this.setState({
       [event.target.name]: event.target.value
@@ -42,13 +64,6 @@ class Input extends React.Component {
       timeOut: 2000,
       positionClass: 'toast-bottom-right'
     }
-    toastr.success(`You have submitted your address!`)
-    this.setState({
-      firstName: '',
-      lastName: '',
-      email: '',
-      address: ''
-    })
   }
 
   render() {
@@ -101,7 +116,8 @@ class Input extends React.Component {
 
 const mapStateToProps = state => ({
   guest: state.input.guest,
-  eventDeets: state.input.eventDeets
+  eventDeets: state.input.eventDeets,
+  error: state.input.error
 })
 
 const mapDispatchToProps = dispatch => ({
