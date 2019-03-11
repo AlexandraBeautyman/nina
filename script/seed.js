@@ -1,7 +1,7 @@
 'use strict'
 
 const db = require('../server/db')
-const {User, Address} = require('../server/db/models')
+const {User, Address, Event} = require('../server/db/models')
 const addressArray = require('./updated_addresses_seed')
 
 async function seed() {
@@ -15,7 +15,18 @@ async function seed() {
 
   const addresses = await Address.bulkCreate(addressArray)
 
-  console.log(`seeded ${users.length} users and ${addresses.length} addresses`)
+  const event = await Event.create({
+    name: 'Secret Amazing Event',
+    streetaddress: '6012 Cricket Road, Flourtown, PA 19031',
+    lat: 40.104895,
+    lng: -75.2295606
+  })
+
+  console.log(
+    `seeded ${users.length} users, ${event.name}, and ${
+      addresses.length
+    } addresses`
+  )
   console.log(`seeded successfully`)
 }
 

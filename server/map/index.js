@@ -10,23 +10,62 @@ const googleMapsClient = require('@google/maps').createClient({
   Promise: Promise
 })
 
-const momCoordinates = {lat: 40.104895, lng: -75.2295606}
+const mom = {
+  streetaddress: '6012 Cricket Road, Flourtown, PA 19031',
+  lat: 40.104895,
+  lng: -75.2295606
+}
 
-// const A = { lat: 37.4216105, lng: -122.0835509 }
-// const B = { lat: 40.8035383, lng: -73.95557629999999 }
+router.get('/event', async (req, res, next) => {
+  const name = req.body.eventName
+  const eventDeets = await Event.findOne({
+    where: {
+      name
+    }
+  })
+  console.log(eventDeets)
+  res.send(eventDeets)
+})
 
-// const sampleCoordinateBox = makeCoordinateBox(A, B)
+router.post('/input', async (req, res, next) => {
+  const {firstName, lastName, email, address} = req.body.guestInfo
+  const event = req.body.event
+  try {
+    const directions = await googleMapsClient
+      .directions({
+        origin: address,
+        destination: event.streetaddress
+      })
+      .asPromise()
+    const streetaddress = directions.json.routes[0].legs[0].start_address
+    const lat = directions.json.routes[0].legs[0].start_location.lat
+    const lng = directions.json.routes[0].legs[0].start_location.lng
+    const duration = directions.json.routes[0].legs[0].duration.value
+    const distance = directions.json.routes[0].legs[0].distance.value
+    const newGuestEntry = await Address.create({
+      firstName,
+      lastName,
+      email,
+      streetaddress,
+      lat,
+      lng,
+      duration,
+      distance
+    })
+    res.send(newGuestEntry)
+  } catch (error) {
+    next(error)
+  }
+})
 
 router.put('/origin', async (req, res, next) => {
-  const originAddress = req.body.originAddress
-  console.log('originAddress: ', originAddress)
+  const originEmail = req.body.originEmail
   try {
     const origin = await Address.findOne({
       where: {
-        streetaddress: originAddress
+        email: originEmail
       }
     })
-    console.log('origin', origin)
     res.send(origin)
   } catch (error) {
     next(error)
@@ -55,7 +94,6 @@ router.put('/carpool', async (req, res, next) => {
 })
 
 router.post('/buddies', async (req, res, next) => {
-  //const durationOriginEvent = 10795
   const origin = req.body.origin
   const durationOriginEvent = origin.duration
   const potentials = req.body.potentials
@@ -82,9 +120,6 @@ router.post('/buddies', async (req, res, next) => {
         destinations
       })
       .asPromise()
-    // [0].elements[0].duration.value
-    //console.log('destinationsDurations', destinationsDurations.json.rows[0].elements)
-    //console.log('originsDurations', originsDurations.json)
     for (let i = 0; i < origins.length; i++) {
       durationObject[origins[i].id] = originsDurations.json.rows[i].elements[0]
     }
@@ -92,23 +127,8 @@ router.post('/buddies', async (req, res, next) => {
       durationObject[destinations[i].id] =
         destinationsDurations.json.rows[0].elements[i]
     }
-    //console.log(durationObject)
     res.send(durationObject)
   } catch (error) {
     next(error)
   }
 })
-
-// const fetchAddresses = async (origin, event) => {
-//     //const arrayOfCoordinateBoxes = []
-//     try {
-//         const coordinateBox = makeCoordinateBox(origin, event)
-//         const addresses = await axios.get('/map/address', {coordinateBox})
-//         console.log(addresses)
-//     }
-//     catch (error) {
-//         console.log(error)
-//     }
-// }
-
-// fetchAddresses(A, B)

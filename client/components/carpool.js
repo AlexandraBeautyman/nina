@@ -1,10 +1,15 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {setOrigin, getBuddies, filterBuddies} from '../store/carpool'
+import toastr from 'toastr'
 
 class Carpool extends React.Component {
   constructor() {
     super()
+    this.state = {
+      email: ''
+    }
+    this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
@@ -30,25 +35,60 @@ class Carpool extends React.Component {
     }
   }
 
-  async handleSubmit(event) {
+  handleChange(event) {
+    this.setState({
+      email: event.target.value
+    })
+  }
+
+  handleSubmit(event) {
     event.preventDefault()
-    await this.props.submitOrigin(event.target.address.value)
+    this.props.submitOrigin(event.target.email.value)
+    toastr.options = {
+      closeButton: true,
+      showMethod: 'slideDown',
+      timeOut: 1000,
+      positionClass: 'toast-bottom-right'
+    }
+    toastr.success(`Give us a moment to find you some options!`)
+    this.setState({
+      email: ''
+    })
   }
 
   render() {
     return (
-      <div>
-        <h1>Find your carpool buddies!</h1>
-        <form onSubmit={this.handleSubmit}>
-          <label htmlFor="address">Address</label>
-          <input name="address" type="text" />
+      <div className="carpool">
+        <h3 className="carpool-text">
+          Give us your email – we'll find you buddies!
+        </h3>
+        <form className="carpool-form" onSubmit={this.handleSubmit}>
+          <label htmlFor="email">Email</label>
+          <input
+            name="email"
+            type="email"
+            value={this.state.email}
+            onChange={this.handleChange}
+            required
+          />
           <button type="submit">Submit</button>
         </form>
         {this.props.definites && this.props.definites.length ? (
-          <div>
-            <h3>Suggested Carpool Buddies:</h3>
+          <div className="buddies">
             {this.props.definites.map(definite => {
-              return <p key={definite.id}>{definite.streetaddress}</p>
+              return (
+                <div className="buddies-content" key={definite.id}>
+                  <div className="buddies-name-address">
+                    <div className="buddies-name">
+                      {definite.firstName + ' ' + definite.lastName}
+                    </div>
+                    <div className="buddies-address">
+                      {definite.streetaddress}
+                    </div>
+                  </div>
+                  <div className="buddies-email">{definite.email}</div>
+                </div>
+              )
             })}
           </div>
         ) : (
@@ -66,8 +106,8 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  submitOrigin: function(originAddress) {
-    dispatch(setOrigin(originAddress))
+  submitOrigin: function(originEmail) {
+    dispatch(setOrigin(originEmail))
   },
   submitAddressInfo: function(coordinateBox, origin) {
     dispatch(getBuddies(coordinateBox, origin))

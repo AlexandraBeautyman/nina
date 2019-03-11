@@ -1,3 +1,18 @@
+// TODOS FOR THIS APP:
+// DONE 0. Review presentation guidelines.
+// DONE 1. Make the address input page.
+// DONE SORT OF 2. Figure out Google unit of duration. (~ between 16 and 17 min is 1000)
+// SKIP FOR NOW 3. Let user set acceptable out-of-the-way distance.
+// 4. Clean up UI after submission of address.
+// DONE 5. STYLE THIS SHIT!
+// SKIP FOR NOW 6. Make the event selectable? Or at least stick it in the database instead of in the code?
+// SKIP FOR NOW 7. Clean up this file and other files.
+// SKIP FOR NOW 8. Move functions to where they belong (frontend?).
+// DONE 9. Create dummy names and emails with addresses, and give those to user instead of actual addresses.
+// DONE 10. If time, use dummy email to fetch data.
+// DONE 10.5 Toast notifications!
+// 11. Make presentation!
+
 require('../../secrets')
 
 const googleMapsClient = require('@google/maps').createClient({

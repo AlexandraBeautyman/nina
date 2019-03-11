@@ -33,31 +33,28 @@ const gotFilteredBuddies = filteredBuddies => ({
 })
 
 // THUNK CREATORS
-export const setOrigin = originAddress => async dispatch => {
+export const setOrigin = originEmail => async dispatch => {
   try {
-    const {data} = await axios.put('/map/origin', {originAddress})
-    console.log('data', data)
+    const {data} = await axios.put('/map/origin', {originEmail})
     dispatch(gotOrigin(data))
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 
 export const getBuddies = (coordinateBox, origin) => async dispatch => {
   try {
     const {data} = await axios.put('/map/carpool', {coordinateBox})
-    let shortlist
-    if (data.length > 20) {
-      data.forEach(datum => {
+    let shortlist = data.filter(datum => datum.id !== origin.id)
+    if (shortlist.length > 20) {
+      shortlist.forEach(item => {
         const distanceSquared =
-          Math.pow(Math.abs(origin.lat - datum.lat), 2) +
-          Math.pow(Math.abs(origin.lng - datum.lng), 2)
-        datum.distanceSquared = distanceSquared
+          Math.pow(Math.abs(origin.lat - item.lat), 2) +
+          Math.pow(Math.abs(origin.lng - item.lng), 2)
+        item.distanceSquared = distanceSquared
       })
-      data.sort(compareByDistance)
-      shortlist = data.slice(0, 20)
-    } else {
-      shortlist = data
+      shortlist.sort(compareByDistance)
+      shortlist = shortlist.slice(0, 20)
     }
     dispatch(gotBuddies(shortlist))
   } catch (error) {
@@ -66,7 +63,7 @@ export const getBuddies = (coordinateBox, origin) => async dispatch => {
 }
 
 export const filterBuddies = (potentials, origin) => async dispatch => {
-  const maxDuration = 100 // store this on state (LATER)
+  const maxDuration = 1000 // store this on state (LATER. 1000 is ~ between 16 and 17 min away)
   const durationOriginEvent = origin.duration
   const potentialsObject = {}
   for (let i = 0; i < potentials.length; i++) {
